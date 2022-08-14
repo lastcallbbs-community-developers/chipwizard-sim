@@ -35,7 +35,7 @@ The relevant lines of `save.dat` are of the form
 Volgograd.Solution.<LevelID>.<SaveSlot> = <SolutionString>
 ```
 LevelID is the numeric ID of the level (see [this post](https://old.reddit.com/r/lastcallbbs/comments/wkgg96/comment/ijn4oo9/)).
-SaveSlot is 0, 1, 2, or 3 (top-left, top-right, bottom-left, bottom-right).
+SaveSlot is 0, 1, or 2 (0-indexed, unlike the game.)
 SolutionString is is the binary solution file, zlib compressed and base64 encoded.
 
 Credit to [yut23](https://github.com/yut23) for reverse engineering the binary

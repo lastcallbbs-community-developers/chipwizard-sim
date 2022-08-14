@@ -114,7 +114,7 @@ def dump_solution(solution: Solution) -> str:
     return base64.b64encode(zlib.compress(dat, level=9)).decode("ascii")
 
 
-def parse_save_file(f) -> dict[int, dict[int, Solution]]:
+def parse_save_file(f) -> dict[int, dict[int, str]]:
     solutions = {level.level_id: {} for level in LEVELS}
     for line in f:
         line = line.rstrip("\n")
@@ -125,9 +125,5 @@ def parse_save_file(f) -> dict[int, dict[int, Solution]]:
             if key[0] == "Volgograd" and key[1] == "Solution":
                 level_id = int(key[2])
                 save_slot = int(key[3])
-
-                solution = parse_solution(val)
-                # Check round-tripping the solution
-                # assert val == dump_solution(solution)
-                solutions[level_id][save_slot] = solution
+                solutions[level_id][save_slot] = val
     return solutions

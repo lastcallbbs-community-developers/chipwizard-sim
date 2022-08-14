@@ -12,28 +12,16 @@ from .simulator import *
 
 
 def get_level_from_name(level_name) -> Optional[Level]:
-    level_name = level_name.strip().lower()
+    # Check case-insensitive without punctuation/spaces
+    def normalize_name(s):
+        return "".join(c for c in s.lower() if "a" <= c <= "z")
+
+    level_name_norm = normalize_name(level_name)
     for level in LEVELS:
-        if level_name == level.level_name.lower():
+        if level_name_norm == normalize_name(level.level_name):
             return level
 
-    if "editor" in level_name:
-        return LEVELS[-1]
-
-    # Bonus level last names
-    for level in LEVELS[15:29]:
-        if level.level_name.split()[-1].lower() in level_name:
-            return level
-
-    # Try to parse 1-2, possibly with a leading "b" or "bonus"
-    digits = [c for c in level_name if "0" <= c <= "9"]
-    if len(digits) == 2:
-        col, row = map(int, digits)
-        return LEVELS[
-            (15 if level_name.startswith("b") else 0) + (col - 1) * 3 + (row - 1)
-        ]
-
-    raise ValueError(f"Could not parse level name {level_name}")
+    raise ValueError(f"Could not parse level name {level_name!r}")
 
 
 def main():
@@ -61,7 +49,9 @@ def main():
         json_result = []
 
         for level in LEVELS:
-            for slot, solution in solutions[level.level_id].items():
+            for slot, save_string in solutions[level.level_id].items():
+                solution = parse_solution(save_string)
+                # assert dump_solution(solution) == save_string
                 result = simulate_solution(level, solution)
                 if args.json:
                     json_result.append(
@@ -89,12 +79,12 @@ def main():
     parser_simulate.add_argument(
         "level_name",
         type=get_level_from_name,
-        help='Use "1-2" for the 2nd level in the 1st column of the base game, or "B4-3" for the 3rd level in the 4th column of the bonus levels, or a bonus level name (e.g. "Clark"). Use "B5-3" or "editor" for the puzzle editor.',
+        help="Use the string name from the game (case-insensitive)",
     )
     parser_simulate.add_argument(
         "slot_number",
         type=int,
-        help="Use 0 for top-left, 1 for top-right, 2 for bottom-left, 3 for bottom-right",
+        help="Slot number, 0-indexed (unlike in the game)",
     )
     parser_simulate.add_argument(
         "save_file", type=argparse.FileType(), help="Save file path (or - for stdin)"
@@ -106,12 +96,11 @@ def main():
         slot = args.slot_number
         if slot not in solutions[level.level_id]:
             print(f"No solution in slot {slot} for level {level.level_name}")
-            print(
-                "Slot should be 0, 1, 2, or 3 for top-left, top-right, bottom-left, or bottom-right"
-            )
+            print("Slot should be 0, 1, or 2 (unlike in the game)")
             sys.exit(1)
 
-        solution = solutions[level.level_id][slot]
+        save_string = solutions[level.level_id][slot]
+        solution = parse_solution(save_string)
         print(solution)
         result = simulate_solution(level, solution)
         print(f"{level.level_name} (Slot {slot})")
