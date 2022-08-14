@@ -3,8 +3,8 @@
 A simple tool/library for parsing/validating solutions to ChipWizard™ Professional,
 a subgame of [Last Call BBS](https://zachtronics.com/last-call-bbs/).
 
-NOTE: This is a work in progress; no simulation is implemented, only static
-analysis metrics.
+NOTE: This is a work in progress; simulation is only lightly tested, though it
+seems correct on some known edge cases.
 
 ## Usage
 
