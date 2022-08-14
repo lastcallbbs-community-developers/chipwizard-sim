@@ -43,4 +43,4 @@ save format; see
 <https://gist.github.com/yut23/5b6ded1b894b4b6f13ea26285b624f78> for a detailed
 explanation.
 
-Credit to [rolamni]<https://www.reddit.com/u/rolamni> for transcribing the level files.
+Credit to [rolamni](https://www.reddit.com/u/rolamni) for transcribing the level files.
