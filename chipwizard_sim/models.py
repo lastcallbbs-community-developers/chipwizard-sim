@@ -15,6 +15,7 @@ __all__ = [
     "Solution",
     "Signal",
     "SignalType",
+    "SIGNAL_COORDS",
     "Level",
     "LayerCellState",
     "CellState",
@@ -159,11 +160,7 @@ class Solution:
                             d.opposite() in self.cells[n_loc].layer(layer).connections
                         )
                     else:
-                        assert (
-                            layer == Layer.METAL_LAYER
-                            and n_loc.x in {-1, 6}
-                            and n_loc.y in {0, 2, 4}
-                        )
+                        assert layer == Layer.METAL_LAYER and n_loc in SIGNAL_COORDS
 
 
 class SignalType(Enum):
@@ -176,6 +173,16 @@ class Signal:
     name: str
     type: SignalType
     values: list[bool]
+
+
+SIGNAL_COORDS = [
+    Coords(-1, 4),
+    Coords(-1, 2),
+    Coords(-1, 0),
+    Coords(6, 4),
+    Coords(6, 2),
+    Coords(6, 0),
+]
 
 
 @dataclass
@@ -205,14 +212,7 @@ class Level:
         self.signals = {
             loc: Signal(name, type_, list(map(bool, values)))
             for loc, name, type_, values in zip(
-                [
-                    Coords(-1, 4),
-                    Coords(-1, 2),
-                    Coords(-1, 0),
-                    Coords(6, 4),
-                    Coords(6, 2),
-                    Coords(6, 0),
-                ],
+                SIGNAL_COORDS,
                 signal_name,
                 signal_type,
                 signal_values,
