@@ -1,6 +1,5 @@
 import base64
 import zlib
-from typing import Optional, cast
 
 from .models import *
 from .levels import LEVELS
@@ -50,10 +49,10 @@ def parse_solution(save_string: str) -> Solution:
         cell.check()
         return cell
 
-    cells: list[list[Optional[Cell]]] = [[None for _ in range(5)] for _ in range(6)]
+    cells = {}
     for y in range(5):
         for x in range(6):
-            cells[x][y] = pop_cell_contents()
+            cells[Coords(x, y)] = pop_cell_contents()
 
     has_selection = pop_int(1)
     assert has_selection in {0, 1}
@@ -68,9 +67,7 @@ def parse_solution(save_string: str) -> Solution:
 
     assert len(dat) == 0
 
-    solution = Solution(
-        cast(list[list[Cell]], cells), selection, save_string=save_string
-    )
+    solution = Solution(cells, selection, save_string=save_string)
     solution.check()
     return solution
 
@@ -104,7 +101,7 @@ def dump_solution(solution: Solution) -> str:
 
     for y in range(5):
         for x in range(6):
-            push_cell_contents(solution.cells[x][y])
+            push_cell_contents(solution.cells[Coords(x, y)])
 
     if solution.selection is not None:
         push_int(1, 1)

@@ -10,6 +10,7 @@ __all__ = [
     "Direction",
     "CellComponent",
     "LayerCell",
+    "Layer",
     "Cell",
     "Solution",
     "Signal",
@@ -75,14 +76,14 @@ class CellComponent(Enum):
 
 @dataclass
 class LayerCell:
-    value: bool
+    exists: bool
     connections: set[Direction]
 
     def __bool__(self):
-        return self.value
+        return self.exists
 
     def check(self):
-        if not self.value:
+        if not self.exists:
             assert not self.connections
 
 
@@ -141,29 +142,27 @@ class Cell:
 
 @dataclass
 class Solution:
-    cells: list[list[Cell]]
+    cells: dict[Coords, Cell]
     selection: Optional[tuple[Coords, Coords]]
     save_string: Optional[str] = None
 
     def check(self):
-        assert len(self.cells) == 6 and all(len(a) == 5 for a in self.cells)
-        for x in range(6):
-            for y in range(5):
-                self.cells[x][y].check()
-                for layer in Layer:
-                    for d in self.cells[x][y].layer(layer).connections:
-                        n_loc = Coords(x, y) + d.delta()
-                        if n_loc.in_bounds():
-                            assert (
-                                d.opposite()
-                                in self.cells[n_loc.x][n_loc.y].layer(layer).connections
-                            )
-                        else:
-                            assert (
-                                layer == Layer.METAL_LAYER
-                                and n_loc.x in {-1, 6}
-                                and n_loc.y in {0, 2, 4}
-                            )
+        assert self.cells.keys() == {Coords(x, y) for x in range(6) for y in range(5)}
+        for loc, cell in self.cells.items():
+            cell.check()
+            for layer in Layer:
+                for d in cell.layer(layer).connections:
+                    n_loc = loc + d.delta()
+                    if n_loc.in_bounds():
+                        assert (
+                            d.opposite() in self.cells[n_loc].layer(layer).connections
+                        )
+                    else:
+                        assert (
+                            layer == Layer.METAL_LAYER
+                            and n_loc.x in {-1, 6}
+                            and n_loc.y in {0, 2, 4}
+                        )
 
 
 class SignalType(Enum):
@@ -173,9 +172,9 @@ class SignalType(Enum):
 
 @dataclass
 class Signal:
-    values: list[int]
+    name: str
     type: SignalType
-    loc: Coords
+    values: list[bool]
 
 
 @dataclass
@@ -184,20 +183,54 @@ class Level:
     level_name: str
     level_index: int  # for sorting
 
-    signal_type: list[SignalType]
-    signals: list[list[int]]
+    num_ticks: int
+    signals: dict[Coords, Signal]
+
+    def __init__(
+        self,
+        level_id: int,
+        level_name: str,
+        level_index: int,
+        signal_type: list[SignalType],
+        signals: list[list[int]],
+    ):
+        self.level_id = level_id
+        self.level_name = level_name
+        self.level_index = level_index
+        assert len(signal_type) == 6 and len(signals) == 6
+        self.num_ticks = len(signals[0])
+        assert all(len(values) == self.num_ticks for values in signals)
+        self.signals = {
+            loc: Signal(name, type_, list(map(bool, values)))
+            for loc, name, type_, values in zip(
+                [
+                    Coords(-1, 4),
+                    Coords(-1, 2),
+                    Coords(-1, 0),
+                    Coords(6, 4),
+                    Coords(6, 2),
+                    Coords(6, 0),
+                ],
+                ["", "", "", "", "", ""],
+                signal_type,
+                signals,
+            )
+        }
 
 
 @dataclass
 class LayerCellState:
-    value: bool
+    exists: bool
     connections: set[Direction]
     powered: bool = False
     open: bool = True
 
+    def __bool__(self):
+        return self.exists
+
     @classmethod
     def from_layer_cell(cls, layer_cell: LayerCell) -> LayerCellState:
-        return cls(layer_cell.value, layer_cell.connections)
+        return cls(layer_cell.exists, layer_cell.connections)
 
 
 @dataclass
@@ -209,22 +242,28 @@ class CellState:
     def layer(self, idx: Layer) -> LayerCellState:
         return [self.metal, self.ntype, self.ptype][idx.value]
 
-
     capacitor: bool
     via: bool
 
     n_on_top: bool
+
+    def is_transistor(self):
+        return self.ntype and self.ptype
 
     def update_gates(self):
         if self.capacitor and self.metal:
             if not self.metal.powered:
                 self.metal.open = False
 
-        if self.ntype and self.ptype:
+        if self.is_transistor():
             if self.n_on_top:
                 self.ptype.open = not self.ntype.powered
             else:
                 self.ntype.open = self.ptype.powered
+
+    def tick_capacitor(self):
+        if self.capacitor and self.metal:
+            self.metal.open = self.metal.powered
 
     @classmethod
     def from_cell(cls, cell: Cell) -> CellState:
@@ -234,18 +273,53 @@ class CellState:
             ptype=LayerCellState.from_layer_cell(cell.ptype),
             capacitor=cell.capacitor,
             via=cell.via,
-            n_on_top=cell.n_on_top
+            n_on_top=cell.n_on_top,
         )
         res.update_gates()
         return res
 
 
 @dataclass
-class State:
-    cells: list[list[CellState]]
+class SignalState:
+    name: str
+    type: SignalType
+    connections: set[Direction]
 
-    def check_state(self):
-        pass
+    input_value: bool = False
+    output_value: bool = False
+
+    @classmethod
+    def from_signal(cls, signal: Signal) -> SignalState:
+        return SignalState(signal.name, signal.type, set())
+
+
+@dataclass
+class State:
+    cells: dict[Coords, CellState]
+    signals: dict[Coords, SignalState]
+
+    @classmethod
+    def from_level_and_solution(cls, level: Level, solution: Solution) -> State:
+        state = cls(
+            cells={
+                loc: CellState.from_cell(cell) for loc, cell in solution.cells.items()
+            },
+            signals={
+                loc: SignalState.from_signal(signal)
+                for loc, signal in level.signals.items()
+            },
+        )
+
+        for loc, signal in state.signals.items():
+            for d in Direction:
+                n_loc = loc + d.delta()
+                if (
+                    n_loc.in_bounds()
+                    and d.opposite() in state.cells[n_loc].metal.connections
+                ):
+                    signal.connections.add(d)
+
+        return state
 
     def visualize(self) -> str:
         return ""
@@ -253,6 +327,9 @@ class State:
 
 @dataclass
 class Metrics:
+    is_correct: bool
+    is_error: bool
+
     # Counts of specific cell types
     # Note that num_ntype and num_ptype both count all transistors
     num_metal: int
