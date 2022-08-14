@@ -12,9 +12,12 @@ __all__ = [
     "LayerCell",
     "Cell",
     "Solution",
-    "State",
+    "Signal",
     "SignalType",
     "Level",
+    "LayerCellState",
+    "CellState",
+    "State",
     "Metrics",
     "SimulationResult",
 ]
@@ -38,6 +41,14 @@ class Direction(Enum):
     UP = 2
     LEFT = 4
     DOWN = 8
+
+    def opposite(self) -> Direction:
+        return {
+            Direction.RIGHT: Direction.LEFT,
+            Direction.UP: Direction.DOWN,
+            Direction.LEFT: Direction.RIGHT,
+            Direction.DOWN: Direction.UP,
+        }[self]
 
     def delta(self) -> Coords:
         if self == Direction.RIGHT:
@@ -137,20 +148,22 @@ class Solution:
     def check(self):
         assert len(self.cells) == 6 and all(len(a) == 5 for a in self.cells)
         for x in range(6):
-            for y in range(6):
+            for y in range(5):
                 self.cells[x][y].check()
-
-
-@dataclass
-class State:
-    def check_state(self):
-        pass
-
-    def __post_init__(self):
-        self.check_state()
-
-    def visualize(self) -> str:
-        return ""
+                for layer in Layer:
+                    for d in self.cells[x][y].layer(layer).connections:
+                        n_loc = Coords(x, y) + d.delta()
+                        if n_loc.in_bounds():
+                            assert (
+                                d.opposite()
+                                in self.cells[n_loc.x][n_loc.y].layer(layer).connections
+                            )
+                        else:
+                            assert (
+                                layer == Layer.METAL_LAYER
+                                and n_loc.x in {-1, 6}
+                                and n_loc.y in {0, 2, 4}
+                            )
 
 
 class SignalType(Enum):
@@ -173,6 +186,69 @@ class Level:
 
     signal_type: list[SignalType]
     signals: list[list[int]]
+
+
+@dataclass
+class LayerCellState:
+    value: bool
+    connections: set[Direction]
+    powered: bool = False
+    open: bool = True
+
+    @classmethod
+    def from_layer_cell(cls, layer_cell: LayerCell) -> LayerCellState:
+        return cls(layer_cell.value, layer_cell.connections)
+
+
+@dataclass
+class CellState:
+    metal: LayerCellState
+    ntype: LayerCellState
+    ptype: LayerCellState
+
+    def layer(self, idx: Layer) -> LayerCellState:
+        return [self.metal, self.ntype, self.ptype][idx.value]
+
+
+    capacitor: bool
+    via: bool
+
+    n_on_top: bool
+
+    def update_gates(self):
+        if self.capacitor and self.metal:
+            if not self.metal.powered:
+                self.metal.open = False
+
+        if self.ntype and self.ptype:
+            if self.n_on_top:
+                self.ptype.open = not self.ntype.powered
+            else:
+                self.ntype.open = self.ptype.powered
+
+    @classmethod
+    def from_cell(cls, cell: Cell) -> CellState:
+        res = cls(
+            metal=LayerCellState.from_layer_cell(cell.metal),
+            ntype=LayerCellState.from_layer_cell(cell.ntype),
+            ptype=LayerCellState.from_layer_cell(cell.ptype),
+            capacitor=cell.capacitor,
+            via=cell.via,
+            n_on_top=cell.n_on_top
+        )
+        res.update_gates()
+        return res
+
+
+@dataclass
+class State:
+    cells: list[list[CellState]]
+
+    def check_state(self):
+        pass
+
+    def visualize(self) -> str:
+        return ""
 
 
 @dataclass

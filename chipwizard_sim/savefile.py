@@ -68,7 +68,11 @@ def parse_solution(save_string: str) -> Solution:
 
     assert len(dat) == 0
 
-    return Solution(cast(list[list[Cell]], cells), selection, save_string=save_string)
+    solution = Solution(
+        cast(list[list[Cell]], cells), selection, save_string=save_string
+    )
+    solution.check()
+    return solution
 
 
 def dump_solution(solution: Solution) -> str:
