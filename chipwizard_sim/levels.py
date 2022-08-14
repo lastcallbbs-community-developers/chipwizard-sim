@@ -56,7 +56,7 @@ LEVELS = [
         level_name="NOT Gate",
         level_index=3,
         signal_type=[SignalType.IN, SignalType.IN, SignalType.IN, SignalType.IN, SignalType.OUT, SignalType.IN],
-        signal_name=["+V", "INA", "+V", "+V", "+V", "OUTX", "+V"],
+        signal_name=["+V", "INA", "+V", "+V", "OUTX", "+V"],
         signal_values=[
             [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
             [0,1,0,0,1,0,1,1,0,1,0,1,1,0,1,1,1,0,0,1,0,1,1,1,0,1,1,1,0,0,1,1,1,1,1,0,0,0,1,1,0,0,1,1,1,1,1,1,0,1,0,0,1,1,0,0,0,1,0],

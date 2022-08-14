@@ -50,13 +50,16 @@ def flood_power(state: State):
             flood(loc, Layer.METAL_LAYER)
 
 
-
 def simulate_solution(level: Level, solution: Solution) -> SimulationResult:
     state = State.from_level_and_solution(level, solution)
     states = [deepcopy(state)]
 
-    is_correct = True
     is_error = False
+
+    signal_results = {
+        loc: SignalResult(signal.name, signal.type, [], deepcopy(signal.values))
+        for loc, signal in level.signals.items()
+    }
 
     for tick in range(level.num_ticks):
         for _, cell in state.cells.items():
@@ -77,14 +80,18 @@ def simulate_solution(level: Level, solution: Solution) -> SimulationResult:
                 break
             elif state in substates:
                 is_error = True
-                is_correct = False
                 break
             substates.append(deepcopy(state))
         states.append(deepcopy(state))
+        for loc, signal in state.signals.items():
+            signal_results[loc].values.append(signal.output_value)
+
         if is_error:
-            is_correct = False
             break
-        is_correct = is_correct and all(state.signals[loc].output_value == signal.values[tick] for loc, signal in level.signals.items())
+
+    is_correct = not is_error and all(
+        signal.values == signal.target_values for loc, signal in signal_results.items()
+    )
 
     num_metal = 0
     num_ntype = 0
@@ -158,5 +165,6 @@ def simulate_solution(level: Level, solution: Solution) -> SimulationResult:
         level=level,
         solution=solution,
         states=states,
+        signals=signal_results,
         metrics=metrics,
     )

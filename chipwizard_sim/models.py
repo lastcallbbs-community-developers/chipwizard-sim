@@ -20,6 +20,7 @@ __all__ = [
     "CellState",
     "State",
     "Metrics",
+    "SignalResult",
     "SimulationResult",
 ]
 
@@ -354,10 +355,20 @@ class Metrics:
 
 
 @dataclass
+class SignalResult:
+    name: str
+    type: SignalType
+
+    values: list[bool]
+    target_values: list[bool]
+
+
+@dataclass
 class SimulationResult:
     level: Level
     solution: Solution
 
     states: list[State]
+    signals: dict[Coords, SignalResult]
 
     metrics: Metrics
