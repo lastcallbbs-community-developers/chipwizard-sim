@@ -11,7 +11,7 @@ LEVELS = [
         level_name="Signal Crossover",
         level_index=0,
         signal_type=[SignalType.IN, SignalType.IN, SignalType.IN, SignalType.OUT, SignalType.IN, SignalType.OUT],
-        signal_name=["INA", "+V", "INB", "OUTB", "+V", "OUTA"],
+        signal_name=["IN_A", "+V", "IN_B", "OUT_B", "+V", "OUT_A"],
         signal_values=[
             [0,1,0,1,1,1,1,1,0,0,1,1,1,0,1,1,0,1,1,0,0,0,1,1,1,0,1,0,1,0,1,0,1,0,1,0,1,1,1,0,1,1,1,1,0,0,0,1,0,0,0,0,1,1,1,0,0,0,1],
             [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
@@ -26,7 +26,7 @@ LEVELS = [
         level_name="AND Gate",
         level_index=1,
         signal_type=[SignalType.IN, SignalType.IN, SignalType.IN, SignalType.IN, SignalType.OUT, SignalType.IN],
-        signal_name=["INA", "+V", "INB", "+V", "OUTX", "+V"],
+        signal_name=["IN_A", "+V", "IN_B", "+V", "OUT_X", "+V"],
         signal_values=[
             [1,0,0,1,1,1,1,1,1,1,1,0,1,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,0,0,1,1,1,1,1,0,0,1,0,1,0,1,1,0,1,1,1,1,1,1,0,1,1,0],
             [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
@@ -41,7 +41,7 @@ LEVELS = [
         level_name="OR Gate",
         level_index=2,
         signal_type=[SignalType.IN, SignalType.IN, SignalType.IN, SignalType.IN, SignalType.OUT, SignalType.IN],
-        signal_name=["INA", "+V", "INB", "+V", "OUTX", "+V"],
+        signal_name=["IN_A", "+V", "IN_B", "+V", "OUT_X", "+V"],
         signal_values=[
             [0,1,1,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,1,0,0,0,1,0,1,1,0,0,0,1,1,1,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0],
             [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
@@ -56,7 +56,7 @@ LEVELS = [
         level_name="NOT Gate",
         level_index=3,
         signal_type=[SignalType.IN, SignalType.IN, SignalType.IN, SignalType.IN, SignalType.OUT, SignalType.IN],
-        signal_name=["+V", "INA", "+V", "+V", "OUTX", "+V"],
+        signal_name=["+V", "IN_A", "+V", "+V", "OUT_X", "+V"],
         signal_values=[
             [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
             [0,1,0,0,1,0,1,1,0,1,0,1,1,0,1,1,1,0,0,1,0,1,1,1,0,1,1,1,0,0,1,1,1,1,1,0,0,0,1,1,0,0,1,1,1,1,1,1,0,1,0,0,1,1,0,0,0,1,0],
@@ -86,7 +86,7 @@ LEVELS = [
         level_name="Digital Signal Mixer",
         level_index=5,
         signal_type=[SignalType.IN, SignalType.IN, SignalType.IN, SignalType.IN, SignalType.IN, SignalType.OUT],
-        signal_name=["INA", "INB", "INC", "IND", "+V", "OUTX"],
+        signal_name=["IN_A", "IN_B", "IN_C", "IN_D", "+V", "OUT_X"],
         signal_values=[
             [0,0,0,0,0,0,1,1,0,0,0,0,0,1,0,0,0,0,0,0,1,1,0,0,0,0,1,1,0,0,1,0,1,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,1],
             [0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,1,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,0,0,0,1,1,1,0,0,0],
@@ -101,7 +101,7 @@ LEVELS = [
         level_name="Interrupt Controller",
         level_index=6,
         signal_type=[SignalType.IN, SignalType.IN, SignalType.IN, SignalType.OUT, SignalType.OUT, SignalType.OUT],
-        signal_name=["IRQ1", "IRQ2", "IRQ3", "OUT1", "OUT2", "OUT3"],
+        signal_name=["IRQ_1", "IRQ_2", "IRQ_3", "OUT_1", "OUT_2", "OUT_3"],
         signal_values=[
             [0,1,0,0,1,0,1,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,1,0,1,0,0,0,1,0,0,0,0,0,1,0,1,1,0,1,0,1,0,1,0,1,0,0,0,0,0,0,0,0,1,1,1,0],
             [0,0,1,1,0,0,1,1,0,0,0,0,0,0,1,0,1,1,0,0,1,1,1,1,0,1,0,0,1,0,0,1,0,1,1,1,0,1,1,0,0,1,1,1,1,1,1,0,1,0,0,0,0,0,1,1,1,0,0],
@@ -116,7 +116,7 @@ LEVELS = [
         level_name="Ignition Sequencer",
         level_index=7,
         signal_type=[SignalType.IN, SignalType.IN, SignalType.IN, SignalType.OUT, SignalType.OUT, SignalType.OUT],
-        signal_name=["+V", "RUN", "+V", "OUT1", "OUT2", "OUT3"],
+        signal_name=["+V", "RUN", "+V", "OUT_1", "OUT_2", "OUT_3"],
         signal_values=[
             [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
             [0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,1,1,1,0,0,0,0,0,1,1,1,1,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0,1,1,1,1,0,0],
@@ -131,7 +131,7 @@ LEVELS = [
         level_name="Equality Tester",
         level_index=8,
         signal_type=[SignalType.IN, SignalType.IN, SignalType.IN, SignalType.IN, SignalType.OUT, SignalType.IN],
-        signal_name=["INA", "+V", "INB", "+V", "OUTX", "+V"],
+        signal_name=["IN_A", "+V", "IN_B", "+V", "OUT_X", "+V"],
         signal_values=[
             [1,1,1,0,0,1,1,0,0,1,0,0,0,0,0,1,1,1,0,0,0,1,0,1,0,0,0,1,0,1,0,1,1,0,1,0,0,0,1,0,0,0,0,0,0,1,1,1,1,0,0,0,1,1,1,1,0,0,0],
             [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
@@ -161,7 +161,7 @@ LEVELS = [
         level_name="Safety Interlock",
         level_index=10,
         signal_type=[SignalType.IN, SignalType.IN, SignalType.IN, SignalType.OUT, SignalType.OUT, SignalType.OUT],
-        signal_name=["INA", "+V", "INB", "OUTA", "ALARM", "OUTB"],
+        signal_name=["IN_A", "+V", "IN_B", "OUT_A", "ALARM", "OUT_B"],
         signal_values=[
             [1,1,0,1,1,1,0,0,1,1,1,1,0,1,1,0,1,1,1,1,0,1,0,1,0,0,1,1,1,1,0,1,0,1,1,1,1,1,0,1,0,1,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,1,0],
             [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
@@ -191,7 +191,7 @@ LEVELS = [
         level_name="Electronic Lock",
         level_index=12,
         signal_type=[SignalType.IN, SignalType.IN, SignalType.IN, SignalType.IN, SignalType.IN, SignalType.OUT],
-        signal_name=["CODE1", "CODE2", "CODE3", "CODE4", "CODE5", "OPEN"],
+        signal_name=["CODE_1", "CODE_2", "CODE_3", "CODE_4", "CODE_5", "OPEN"],
         signal_values=[
             [1,0,1,0,1,1,0,1,1,0,0,1,1,0,1,0,0,1,0,1,1,0,0,1,0,0,0,1,0,0,0,1,0,1,1,1,1,0,0,0,0,1,1,0,0,0,1,0,0,0,0,1,0,1,0,0,0,1,0],
             [1,1,1,0,0,0,1,0,1,1,0,1,0,1,1,1,1,1,1,1,0,1,1,0,1,1,1,0,1,1,0,1,0,1,0,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,1],
@@ -221,7 +221,7 @@ LEVELS = [
         level_name="Programmable Delay",
         level_index=14,
         signal_type=[SignalType.IN, SignalType.IN, SignalType.IN, SignalType.IN, SignalType.IN, SignalType.OUT],
-        signal_name=["TIME3", "TIME5", "TIME8", "RUN", "+V", "ALARM"],
+        signal_name=["TIME_3", "TIME_5", "TIME_8", "RUN", "+V", "ALARM"],
         signal_values=[
             [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
@@ -236,7 +236,7 @@ LEVELS = [
         level_name="Synchrony Detector",
         level_index=15,
         signal_type=[SignalType.IN, SignalType.IN, SignalType.IN, SignalType.IN, SignalType.OUT, SignalType.IN],
-        signal_name=["INA", "+V", "INB", "+V", "ALARM", "+V"],
+        signal_name=["IN_A", "+V", "IN_B", "+V", "ALARM", "+V"],
         signal_values=[
             [0,1,0,0,0,1,0,1,1,0,0,0,1,0,0,1,0,1,1,1,1,0,1,0,0,0,1,1,0,1,0,1,1,1,1,1,0,0,0,0,0,1,0,1,1,0,1,0,1,0,0,1,1,0,0,1,1,1,1],
             [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
@@ -251,7 +251,7 @@ LEVELS = [
         level_name="AND-OR Combo Gate",
         level_index=16,
         signal_type=[SignalType.IN, SignalType.IN, SignalType.IN, SignalType.IN, SignalType.IN, SignalType.OUT],
-        signal_name=["INA", "+V", "INB", "GATE", "+V", "OUTX"],
+        signal_name=["IN_A", "+V", "IN_B", "GATE", "+V", "OUT_X"],
         signal_values=[
             [0,0,0,1,0,1,0,0,1,0,1,1,0,1,0,0,0,1,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,1,1,0,1,0,0,1,1,1,0,0,1,1,1,0,1,1,1,0,0,1],
             [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
@@ -281,7 +281,7 @@ LEVELS = [
         level_name="Stepper Motor Driver",
         level_index=18,
         signal_type=[SignalType.IN, SignalType.OUT, SignalType.OUT, SignalType.OUT, SignalType.OUT, SignalType.IN],
-        signal_name=["+V", "OUTA+", "OUTA-", "OUTB+", "OUTB-", "+V"],
+        signal_name=["+V", "OUT_A+", "OUT_A-", "OUT_B+", "OUT_B-", "+V"],
         signal_values=[
             [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
             [1,1,0,0,1,1,0,0,1,1,0,0,1,1,0,0,1,1,0,0,1,1,0,0,1,1,0,0,1,1,0,0,1,1,0,0,1,1,0,0,1,1,0,0,1,1,0,0,1,1,0,0,1,1,0,0,1,1,0],
@@ -311,7 +311,7 @@ LEVELS = [
         level_name="Pulse Echo Detector",
         level_index=20,
         signal_type=[SignalType.IN, SignalType.IN, SignalType.IN, SignalType.OUT, SignalType.IN, SignalType.OUT],
-        signal_name=["PULSE", "+V", "RESET", "OUT1", "+V", "OUT2"],
+        signal_name=["PULSE", "+V", "RESET", "OUT_1", "+V", "OUT_2"],
         signal_values=[
             [0,0,1,0,0,1,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,1,0,1,0,0,0,0,1,0,1,0,1,0,0,0,1,0,0,0,0,0,1,0,1,0,1,0,1,0,0,0,0,0,1,0,1,0,0],
             [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
