@@ -192,14 +192,15 @@ class Level:
         level_name: str,
         level_index: int,
         signal_type: list[SignalType],
-        signals: list[list[int]],
+        signal_name: list[str],
+        signal_values: list[list[int]],
     ):
         self.level_id = level_id
         self.level_name = level_name
         self.level_index = level_index
-        assert len(signal_type) == 6 and len(signals) == 6
-        self.num_ticks = len(signals[0])
-        assert all(len(values) == self.num_ticks for values in signals)
+        assert len(signal_type) == len(signal_name) == len(signal_values) == 6
+        self.num_ticks = len(signal_values[0])
+        assert all(len(values) == self.num_ticks for values in signal_values)
         self.signals = {
             loc: Signal(name, type_, list(map(bool, values)))
             for loc, name, type_, values in zip(
@@ -211,9 +212,9 @@ class Level:
                     Coords(6, 2),
                     Coords(6, 0),
                 ],
-                ["", "", "", "", "", ""],
+                signal_name,
                 signal_type,
-                signals,
+                signal_values,
             )
         }
 
