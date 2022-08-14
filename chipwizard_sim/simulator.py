@@ -80,10 +80,10 @@ def simulate_solution(level: Level, solution: Solution) -> SimulationResult:
                 is_correct = False
                 break
             substates.append(deepcopy(state))
+        states.append(deepcopy(state))
         if is_error:
             is_correct = False
             break
-        states.append(deepcopy(state))
         is_correct = is_correct and all(state.signals[loc].output_value == signal.values[tick] for loc, signal in level.signals.items())
 
     num_metal = 0
