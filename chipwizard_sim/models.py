@@ -13,6 +13,7 @@ __all__ = [
     "Cell",
     "Solution",
     "State",
+    "SignalType",
     "Level",
     "Metrics",
     "SimulationResult",
@@ -151,9 +152,17 @@ class State:
     def visualize(self) -> str:
         return ""
 
-    @classmethod
-    def from_visualize(cls, s: str) -> State:
-        return State()
+
+class SignalType(Enum):
+    IN = 0
+    OUT = 1
+
+
+@dataclass
+class Signal:
+    values: list[int]
+    type: SignalType
+    loc: Coords
 
 
 @dataclass
@@ -161,6 +170,9 @@ class Level:
     level_id: int
     level_name: str
     level_index: int  # for sorting
+
+    signal_type: list[SignalType]
+    signals: list[list[int]]
 
 
 @dataclass
