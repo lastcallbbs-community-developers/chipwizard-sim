@@ -162,6 +162,9 @@ class Solution:
                     else:
                         assert layer == Layer.METAL_LAYER and n_loc in SIGNAL_COORDS
 
+    def visualize(self, level: Level) -> str:
+        return State.from_level_and_solution(level, self).visualize(draw_power=False)
+
 
 class SignalType(Enum):
     IN = 0
@@ -323,13 +326,15 @@ class State:
 
         return state
 
-    def visualize(self) -> str:
+    def visualize(self, draw_power: bool = True) -> str:
+        TOP_OFFSET = 1
         LEFT_OFFSET = 9
         RIGHT_OFFSET = 9
+        BOT_OFFSET = 1
         # Size of the box
         SZ = 6
         g = {
-            x: {y: " " for y in range(SZ * 5 + 1)}
+            x: {y: " " for y in range(-BOT_OFFSET, SZ * 5 + 1 + TOP_OFFSET)}
             for x in range(-LEFT_OFFSET, SZ * 6 + 1 + RIGHT_OFFSET)
         }
         # DOTTED_LINES = "┆┄"
@@ -347,7 +352,7 @@ class State:
                 elif x % SZ == 0 or y % SZ == 0:
                     g[x][y] = THIN_LINES[y % SZ == 0]
 
-        # Now draw silicon connections
+        # Unpowered silicon connections
         for loc, cell in self.cells.items():
             x, y = loc.x * SZ + 4, loc.y * SZ + 2
             for d in cell.ntype.connections | cell.ptype.connections:
@@ -355,14 +360,64 @@ class State:
                 for z in range(1, SZ):
                     g[x + delta.x * z][y + delta.y * z] = DOUBLE_LINES[delta.y == 0]
 
-        # Next draw metal connections
+        # Powered silicon connections
+        if draw_power:
+            for loc, cell in self.cells.items():
+                x, y = loc.x * SZ + 4, loc.y * SZ + 2
+                if cell.ntype and cell.ntype.powered and cell.ntype.open:
+                    for d in cell.ntype.connections:
+                        delta = d.delta()
+                        for z in range(1, SZ):
+                            g[x + delta.x * z][y + delta.y * z] = THICK_LINES[
+                                delta.y == 0
+                            ]
+                if cell.ptype and cell.ptype.powered and cell.ptype.open:
+                    for d in cell.ptype.connections:
+                        delta = d.delta()
+                        for z in range(1, SZ):
+                            g[x + delta.x * z][y + delta.y * z] = THICK_LINES[
+                                delta.y == 0
+                            ]
+
+        # Unpowered metal connections
         for loc, cell in self.cells.items():
             x, y = loc.x * SZ + 2, loc.y * SZ + 4
             if cell.metal:
                 for d in cell.metal.connections:
                     delta = d.delta()
                     for z in range(1, SZ):
-                        g[x + delta.x * z][y + delta.y * z] = THICK_LINES[delta.y == 0]
+                        g[x + delta.x * z][y + delta.y * z] = (
+                            DOUBLE_LINES if draw_power else THICK_LINES
+                        )[delta.y == 0]
+        for loc, signal in self.signals.items():
+            x, y = loc.x * SZ + 2, loc.y * SZ + 4
+            for d in signal.connections:
+                delta = d.delta()
+                for z in range(1, SZ):
+                    g[x + delta.x * z][y + delta.y * z] = (
+                        DOUBLE_LINES if draw_power else THICK_LINES
+                    )[delta.y == 0]
+
+        # Powered metal connections
+        if draw_power:
+            for loc, cell in self.cells.items():
+                x, y = loc.x * SZ + 2, loc.y * SZ + 4
+                if cell.metal and cell.metal.powered and cell.metal.open:
+                    for d in cell.metal.connections:
+                        delta = d.delta()
+                        for z in range(1, SZ):
+                            g[x + delta.x * z][y + delta.y * z] = THICK_LINES[
+                                delta.y == 0
+                            ]
+            for loc, signal in self.signals.items():
+                x, y = loc.x * SZ + 2, loc.y * SZ + 4
+                if signal.output_value:
+                    for d in signal.connections:
+                        delta = d.delta()
+                        for z in range(1, SZ):
+                            g[x + delta.x * z][y + delta.y * z] = THICK_LINES[
+                                delta.y == 0
+                            ]
 
         # Now draw labels on top
         for loc, cell in self.cells.items():
@@ -406,15 +461,43 @@ class State:
                 for i, c in enumerate(signal.name):
                     g[loc.x * SZ + 2 + 1 + i][loc.y * SZ + 4] = c
 
+        if draw_power:
+            g[3 * SZ - 8][5 * SZ + 1] = THICK_LINES[1]
+            g[3 * SZ - 7][5 * SZ + 1] = " "
+            g[3 * SZ - 6][5 * SZ + 1] = "H"
+            g[3 * SZ - 5][5 * SZ + 1] = "I"
+            g[3 * SZ - 4][5 * SZ + 1] = "G"
+            g[3 * SZ - 3][5 * SZ + 1] = "H"
+            g[3 * SZ + 4][5 * SZ + 1] = DOUBLE_LINES[1]
+            g[3 * SZ + 5][5 * SZ + 1] = " "
+            g[3 * SZ + 6][5 * SZ + 1] = "L"
+            g[3 * SZ + 7][5 * SZ + 1] = "O"
+            g[3 * SZ + 8][5 * SZ + 1] = "W"
+        else:
+            g[3 * SZ - 8][5 * SZ + 1] = THICK_LINES[1]
+            g[3 * SZ - 7][5 * SZ + 1] = " "
+            g[3 * SZ - 6][5 * SZ + 1] = "M"
+            g[3 * SZ - 5][5 * SZ + 1] = "E"
+            g[3 * SZ - 4][5 * SZ + 1] = "T"
+            g[3 * SZ - 3][5 * SZ + 1] = "A"
+            g[3 * SZ - 2][5 * SZ + 1] = "L"
+            g[3 * SZ + 4][5 * SZ + 1] = DOUBLE_LINES[1]
+            g[3 * SZ + 5][5 * SZ + 1] = " "
+            g[3 * SZ + 6][5 * SZ + 1] = "S"
+            g[3 * SZ + 7][5 * SZ + 1] = "I"
+            g[3 * SZ + 8][5 * SZ + 1] = "L"
+            g[3 * SZ + 9][5 * SZ + 1] = "I"
+            g[3 * SZ + 10][5 * SZ + 1] = "C"
+            g[3 * SZ + 11][5 * SZ + 1] = "O"
+            g[3 * SZ + 12][5 * SZ + 1] = "N"
+
         WIDTH = LEFT_OFFSET + SZ * 6 + 1 + RIGHT_OFFSET
         return "\n".join(
             ["┌" + "─" * WIDTH + "┐"]
-            + ["│" + " " * WIDTH + "│"]
             + [
                 THIN_LINES[0] + "".join(r) + THIN_LINES[0]
                 for r in zip(*(reversed(c.values()) for c in g.values()))
             ]
-            + ["│" + " " * WIDTH + "│"]
             + ["└" + "─" * WIDTH + "┘"]
         )
 

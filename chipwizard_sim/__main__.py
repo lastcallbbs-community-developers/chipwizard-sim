@@ -107,8 +107,10 @@ def main():
         for field in dataclasses.fields(Metrics):
             print(field.name, "=", getattr(result.metrics, field.name))
         print()
-        print("Initial state:")
-        print(result.states[0].visualize())
+        print("Solution:")
+        print(solution.visualize(level))
+        print("Final state:")
+        print(result.states[-1].visualize())
         print()
         print("Signals:")
         for _, signal in result.signals.items():
