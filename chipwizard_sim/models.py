@@ -324,7 +324,99 @@ class State:
         return state
 
     def visualize(self) -> str:
-        return ""
+        LEFT_OFFSET = 9
+        RIGHT_OFFSET = 9
+        # Size of the box
+        SZ = 6
+        g = {
+            x: {y: " " for y in range(SZ * 5 + 1)}
+            for x in range(-LEFT_OFFSET, SZ * 6 + 1 + RIGHT_OFFSET)
+        }
+        # DOTTED_LINES = "┆┄"
+        THIN_LINES = "│─"
+        THICK_LINES = "┃━"
+        DOUBLE_LINES = "║═"
+
+        # First, draw our grid
+        for x in range(SZ * 6 + 1):
+            for y in range(SZ * 5 + 1):
+                if x % SZ == 0 and y % SZ == 0:
+                    g[x][y] = ["┌┬┐", "├┼┤", "└┴┘",][
+                        0 if y // SZ == 5 else 2 if y // SZ == 0 else 1
+                    ][2 if x // SZ == 6 else 0 if x // SZ == 0 else 1]
+                elif x % SZ == 0 or y % SZ == 0:
+                    g[x][y] = THIN_LINES[y % SZ == 0]
+
+        # Now draw silicon connections
+        for loc, cell in self.cells.items():
+            x, y = loc.x * SZ + 4, loc.y * SZ + 2
+            for d in cell.ntype.connections | cell.ptype.connections:
+                delta = d.delta()
+                for z in range(1, SZ):
+                    g[x + delta.x * z][y + delta.y * z] = DOUBLE_LINES[delta.y == 0]
+
+        # Next draw metal connections
+        for loc, cell in self.cells.items():
+            x, y = loc.x * SZ + 2, loc.y * SZ + 4
+            if cell.metal:
+                for d in cell.metal.connections:
+                    delta = d.delta()
+                    for z in range(1, SZ):
+                        g[x + delta.x * z][y + delta.y * z] = THICK_LINES[delta.y == 0]
+
+        # Now draw labels on top
+        for loc, cell in self.cells.items():
+            if cell.metal:
+                g[loc.x * SZ + 2][loc.y * SZ + 4] = "M"
+
+            if cell.ntype and cell.ptype:
+                if cell.n_on_top:
+                    g[loc.x * SZ + 4][loc.y * SZ + 2] = "N"
+                    for d in cell.ptype.connections:
+                        delta = d.delta()
+                        g[loc.x * SZ + 4 + delta.x][loc.y * SZ + 2 + delta.y] = "P"
+                else:
+                    g[loc.x * SZ + 4][loc.y * SZ + 2] = "P"
+                    for d in cell.ntype.connections:
+                        delta = d.delta()
+                        g[loc.x * SZ + 4 + delta.x][loc.y * SZ + 2 + delta.y] = "N"
+            elif cell.ntype:
+                g[loc.x * SZ + 4][loc.y * SZ + 2] = "N"
+            elif cell.ptype:
+                g[loc.x * SZ + 4][loc.y * SZ + 2] = "P"
+
+            if cell.capacitor:
+                g[loc.x * SZ + 4][loc.y * SZ + 2] = "C"
+                # Draw a "via" cause it looks better
+                g[loc.x * SZ + 3][loc.y * SZ + 3] = "╲"
+
+            if cell.via:
+                g[loc.x * SZ + 3][loc.y * SZ + 3] = "╲"
+
+        # Finally, draw the signals
+        for loc, signal in self.signals.items():
+            assert len(signal.name) <= 6
+            if loc.x < 0:
+                g[loc.x * SZ + 5 - 1][loc.y * SZ + 4] = " "
+                for i, c in enumerate(reversed(signal.name)):
+                    g[loc.x * SZ + 5 - 2 - i][loc.y * SZ + 4] = c
+
+            else:
+                g[loc.x * SZ + 2][loc.y * SZ + 4] = " "
+                for i, c in enumerate(signal.name):
+                    g[loc.x * SZ + 2 + 1 + i][loc.y * SZ + 4] = c
+
+        WIDTH = LEFT_OFFSET + SZ * 6 + 1 + RIGHT_OFFSET
+        return "\n".join(
+            ["┌" + "─" * WIDTH + "┐"]
+            + ["│" + " " * WIDTH + "│"]
+            + [
+                THIN_LINES[0] + "".join(r) + THIN_LINES[0]
+                for r in zip(*(reversed(c.values()) for c in g.values()))
+            ]
+            + ["│" + " " * WIDTH + "│"]
+            + ["└" + "─" * WIDTH + "┘"]
+        )
 
 
 @dataclass

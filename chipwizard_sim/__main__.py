@@ -101,12 +101,20 @@ def main():
 
         save_string = solutions[level.level_id][slot]
         solution = parse_solution(save_string)
-        print(solution)
         result = simulate_solution(level, solution)
         print(f"{level.level_name} (Slot {slot})")
         print("Metrics:")
         for field in dataclasses.fields(Metrics):
             print(field.name, "=", getattr(result.metrics, field.name))
+        print()
+        print("Initial state:")
+        print(result.states[0].visualize())
+        print()
+        print("Signals:")
+        for _, signal in result.signals.items():
+            print(f"{signal.name}: {'Correct' if signal.values == signal.target_values else 'Incorrect'}")
+            print("    Have:", "".join("01"[v] for v in signal.values))
+            print("    Want:", "".join("01"[v] for v in signal.target_values))
 
     parser_simulate.set_defaults(func=run_simulate)
 
