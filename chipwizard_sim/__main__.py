@@ -112,7 +112,9 @@ def main():
         print()
         print("Signals:")
         for _, signal in result.signals.items():
-            print(f"{signal.name}: {'Correct' if signal.values == signal.target_values else 'Incorrect'}")
+            print(
+                f"{signal.name}: {'Correct' if signal.values == signal.target_values else 'Incorrect'}"
+            )
             print("    Have:", "".join("01"[v] for v in signal.values))
             print("    Want:", "".join("01"[v] for v in signal.target_values))
 
