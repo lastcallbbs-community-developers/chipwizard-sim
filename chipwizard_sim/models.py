@@ -280,6 +280,10 @@ class CellState:
             via=cell.via,
             n_on_top=cell.n_on_top,
         )
+        # NB: This is empirically tested to be the correct initialization:
+        # before the first tick, gates are in the state as if all inputs are
+        # off; in particular, PNP transistors are open for a subtick, and NPN
+        # transistors are closed.
         res.update_gates()
         return res
 
