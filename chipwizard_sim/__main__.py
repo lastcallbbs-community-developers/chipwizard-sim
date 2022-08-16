@@ -4,6 +4,7 @@ import argparse
 import json
 import dataclasses
 from typing import Optional
+import multiprocessing
 
 from .models import *
 from .savefile import *
@@ -24,6 +25,16 @@ def get_level_from_name(level_name) -> Optional[Level]:
     raise ValueError(f"Could not parse level name {level_name!r}")
 
 
+def process_solution(
+    inp: tuple[Level, int, str]
+) -> tuple[Level, int, Solution, SimulationResult]:
+    level, slot, save_string = inp
+    solution = parse_solution(save_string)
+    # assert dump_solution(solution) == save_string
+    result = simulate_solution(level, solution)
+    return level, slot, solution, result
+
+
 def main():
     parser = argparse.ArgumentParser(
         prog="python -m chipwizard_sim", description="Simulate ChipWizard solutions"
@@ -42,36 +53,46 @@ def main():
     parser_validate_all.add_argument(
         "--include-solution", action="store_true", help="Include the solution save"
     )
+    parser_validate_all.add_argument(
+        "--max-parallelism",
+        type=int,
+        help="Maximum number of threads/processes to use (default 8)",
+        default=8,
+    )
 
     def run_validate_all(args):
         solutions = parse_save_file(args.save_file)
 
         json_result = []
 
-        for level in LEVELS:
-            for slot, save_string in solutions[level.level_id].items():
-                solution = parse_solution(save_string)
-                # assert dump_solution(solution) == save_string
-                result = simulate_solution(level, solution)
-                if args.json:
-                    json_result.append(
-                        dict(
-                            level_name=level.level_name,
-                            level_id=level.level_id,
-                            **(
-                                dict(solution=solution.save_string)
-                                if args.include_solution
-                                else {}
-                            ),
-                            **dataclasses.asdict(result.metrics),
-                        )
+        with multiprocessing.Pool(args.max_parallelism) as pool:
+            results = pool.imap(
+                process_solution,
+                (
+                    (level, slot, save_string)
+                    for level in LEVELS
+                    for slot, save_string in solutions[level.level_id].items()
+                ),
+                chunksize=1,
+            )
+            if args.json:
+                json_result = [
+                    dict(
+                        level_name=level.level_name,
+                        level_id=level.level_id,
+                        **(
+                            dict(solution=solution.save_string)
+                            if args.include_solution
+                            else {}
+                        ),
+                        **dataclasses.asdict(result.metrics),
                     )
-                else:
-                    print(f"{level.level_name} (Slot {slot})")
-                    print(result.metrics)
-
-        if args.json:
-            print(json.dumps(json_result))
+                    for level, slot, solution, result in results
+                ]
+                print(json.dumps(json_result))
+            else:
+                for level, slot, solution, result in results:
+                    print(f"{level.level_name} (Slot {slot})\n{result.metrics}")
 
     parser_validate_all.set_defaults(func=run_validate_all)
 
