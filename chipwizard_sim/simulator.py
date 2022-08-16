@@ -1,5 +1,3 @@
-from copy import deepcopy
-
 from .models import *
 
 
@@ -52,12 +50,12 @@ def flood_power(state: State):
 
 def simulate_solution(level: Level, solution: Solution) -> SimulationResult:
     state = State.from_level_and_solution(level, solution)
-    states = [deepcopy(state)]
+    states = [state.copy()]
 
     is_error = False
 
     signal_results = {
-        loc: SignalResult(signal.name, signal.type, [], deepcopy(signal.values))
+        loc: SignalResult(signal.name, signal.type, [], list(signal.values))
         for loc, signal in level.signals.items()
     }
 
@@ -70,7 +68,7 @@ def simulate_solution(level: Level, solution: Solution) -> SimulationResult:
 
         flood_power(state)
 
-        substates = [deepcopy(state)]
+        substates = [state.copy()]
         while True:
             for _, cell in state.cells.items():
                 cell.update_gates()
@@ -81,8 +79,8 @@ def simulate_solution(level: Level, solution: Solution) -> SimulationResult:
             elif state in substates:
                 is_error = True
                 break
-            substates.append(deepcopy(state))
-        states.append(deepcopy(state))
+            substates.append(state.copy())
+        states.append(state.copy())
         for loc, signal in state.signals.items():
             signal_results[loc].values.append(signal.output_value)
 

@@ -230,6 +230,14 @@ class LayerCellState:
     powered: bool = False
     open: bool = True
 
+    def copy(self):
+        return LayerCellState(
+            self.exists,
+            self.connections,  # reuse connections
+            self.powered,
+            self.open,
+        )
+
     def __bool__(self):
         return self.exists
 
@@ -251,6 +259,16 @@ class CellState:
     via: bool
 
     n_on_top: bool
+
+    def copy(self):
+        return CellState(
+            self.metal.copy(),
+            self.ntype.copy(),
+            self.ptype.copy(),
+            self.capacitor,
+            self.via,
+            self.n_on_top,
+        )
 
     def is_transistor(self):
         return self.ntype and self.ptype
@@ -297,6 +315,15 @@ class SignalState:
     input_value: bool = False
     output_value: bool = False
 
+    def copy(self):
+        return SignalState(
+            self.name,
+            self.type,
+            self.connections,  # reuse connections
+            self.input_value,
+            self.output_value,
+        )
+
     @classmethod
     def from_signal(cls, signal: Signal) -> SignalState:
         return SignalState(signal.name, signal.type, set())
@@ -306,6 +333,12 @@ class SignalState:
 class State:
     cells: dict[Coords, CellState]
     signals: dict[Coords, SignalState]
+
+    def copy(self):
+        return State(
+            {loc: cs.copy() for loc, cs in self.cells.items()},
+            {loc: ss.copy() for loc, ss in self.signals.items()},
+        )
 
     @classmethod
     def from_level_and_solution(cls, level: Level, solution: Solution) -> State:
