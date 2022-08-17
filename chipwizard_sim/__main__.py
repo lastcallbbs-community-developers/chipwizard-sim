@@ -1,11 +1,9 @@
 import sys
 
 import argparse
-import contextlib
 import json
 import dataclasses
 from typing import Optional
-import multiprocessing
 
 from .models import *
 from .savefile import *
@@ -54,49 +52,33 @@ def main():
     parser_validate_all.add_argument(
         "--include-solution", action="store_true", help="Include the solution save"
     )
-    parser_validate_all.add_argument(
-        "--max-parallelism",
-        type=int,
-        help="Maximum number of threads/processes to use (default 8)",
-        default=8,
-    )
 
     def run_validate_all(args):
         solutions = parse_save_file(args.save_file)
 
         json_result = []
-
-        with (
-            multiprocessing.Pool(args.max_parallelism)
-            if args.max_parallelism > 1
-            else contextlib.nullcontext()
-        ) as pool:
-            results = (pool.imap if pool is not None else map)(
-                process_solution,
-                (
-                    (level, slot, save_string)
-                    for level in LEVELS
-                    for slot, save_string in solutions[level.level_id].items()
-                ),
-            )
-            if args.json:
-                json_result = [
-                    dict(
-                        level_name=level.level_name,
-                        level_id=level.level_id,
-                        **(
-                            dict(solution=solution.save_string)
-                            if args.include_solution
-                            else {}
-                        ),
-                        **dataclasses.asdict(result.metrics),
+        for level in LEVELS:
+            for slot, save_string in solutions[level.level_id].items():
+                solution = parse_solution(save_string)
+                # assert dump_solution(solution) == save_string
+                result = simulate_solution(level, solution)
+                if args.json:
+                    json_result.append(
+                        dict(
+                            level_name=level.level_name,
+                            level_id=level.level_id,
+                            **(
+                                dict(solution=solution.save_string)
+                                if args.include_solution
+                                else {}
+                            ),
+                            **dataclasses.asdict(result.metrics),
+                        )
                     )
-                    for level, slot, solution, result in results
-                ]
-                print(json.dumps(json_result))
-            else:
-                for level, slot, solution, result in results:
+                else:
                     print(f"{level.level_name} (Slot {slot})\n{result.metrics}")
+        if args.json:
+            print(json.dumps(json_result))
 
     parser_validate_all.set_defaults(func=run_validate_all)
 
