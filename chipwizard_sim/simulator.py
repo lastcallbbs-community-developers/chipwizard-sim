@@ -8,8 +8,9 @@ __all__ = [
 
 def flood_power(state: State):
     for _, cell in state.cells.items():
-        for layer in Layer:
-            cell.layer(layer).powered = False
+        cell.metal.powered = False
+        cell.ntype.powered = False
+        cell.ptype.powered = False
     for _, signal in state.signals.items():
         signal.output_value = False
 

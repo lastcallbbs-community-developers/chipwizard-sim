@@ -102,7 +102,14 @@ class Cell:
     ptype: LayerCell
 
     def layer(self, idx: Layer) -> LayerCell:
-        return [self.metal, self.ntype, self.ptype][idx.value]
+        if idx == Layer.METAL_LAYER:
+            return self.metal
+        elif idx == Layer.NTYPE_LAYER:
+            return self.ntype
+        elif idx == Layer.PTYPE_LAYER:
+            return self.ptype
+        else:
+            assert False
 
     capacitor: bool
     via: bool
@@ -253,7 +260,14 @@ class CellState:
     ptype: LayerCellState
 
     def layer(self, idx: Layer) -> LayerCellState:
-        return [self.metal, self.ntype, self.ptype][idx.value]
+        if idx == Layer.METAL_LAYER:
+            return self.metal
+        elif idx == Layer.NTYPE_LAYER:
+            return self.ntype
+        elif idx == Layer.PTYPE_LAYER:
+            return self.ptype
+        else:
+            assert False
 
     capacitor: bool
     via: bool
