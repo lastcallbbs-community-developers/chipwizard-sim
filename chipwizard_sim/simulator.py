@@ -49,7 +49,12 @@ def flood_power(state: State):
             flood(loc, Layer.METAL_LAYER)
 
 
-def simulate_solution(level: Level, solution: Solution, save_states: bool = False, save_substates: bool = False) -> SimulationResult:
+def simulate_solution(
+    level: Level,
+    solution: Solution,
+    save_states: bool = False,
+    save_substates: bool = False,
+) -> SimulationResult:
     state = State.from_level_and_solution(level, solution)
     if save_states:
         states = [state.copy()]
@@ -69,14 +74,20 @@ def simulate_solution(level: Level, solution: Solution, save_states: bool = Fals
                 state.signals[loc].input_value = signal.values[tick]
 
         # Compute the gate state bitmask
-        gate_state = sum(cell.tick_capacitor() << (loc.x * 5 + loc.y) for loc, cell in state.cells.items())
+        gate_state = sum(
+            cell.tick_capacitor() << (loc.x * 5 + loc.y)
+            for loc, cell in state.cells.items()
+        )
         seen_gate_states = [gate_state]
         flood_power(state)
         if save_substates:
             cur_substates = [state.copy()]
 
         while True:
-            next_gate_state = sum(cell.update_gates() << (loc.x * 5 + loc.y) for loc, cell in state.cells.items())
+            next_gate_state = sum(
+                cell.update_gates() << (loc.x * 5 + loc.y)
+                for loc, cell in state.cells.items()
+            )
             if next_gate_state == gate_state:
                 break
             gate_state = next_gate_state

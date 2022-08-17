@@ -66,7 +66,11 @@ def main():
 
         json_result = []
 
-        with (multiprocessing.Pool(args.max_parallelism) if args.max_parallelism > 1 else contextlib.nullcontext()) as pool:
+        with (
+            multiprocessing.Pool(args.max_parallelism)
+            if args.max_parallelism > 1
+            else contextlib.nullcontext()
+        ) as pool:
             results = (pool.imap if pool is not None else map)(
                 process_solution,
                 (
@@ -122,7 +126,9 @@ def main():
 
         save_string = solutions[level.level_id][slot]
         solution = parse_solution(save_string)
-        result = simulate_solution(level, solution, save_states=True, save_substates=True)
+        result = simulate_solution(
+            level, solution, save_states=True, save_substates=True
+        )
         assert result.states is not None
         assert result.substates is not None
         print(f"{level.level_name} (Slot {slot})")
