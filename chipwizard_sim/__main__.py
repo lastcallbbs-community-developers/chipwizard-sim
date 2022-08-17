@@ -121,7 +121,7 @@ def main():
         print("Solution:")
         print(solution.visualize(level))
         if result.metrics.is_error:
-            print(f"Instability detected on step {len(result.states)}!")
+            print(f"Instability detected on step {len(result.states)-1}!")
             print("Previous state:")
             print(result.states[-2].visualize())
             print("Current states:")
