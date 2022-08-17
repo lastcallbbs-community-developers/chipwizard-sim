@@ -1,6 +1,7 @@
 import sys
 
 import argparse
+import contextlib
 import json
 import dataclasses
 from typing import Optional
@@ -65,15 +66,14 @@ def main():
 
         json_result = []
 
-        with multiprocessing.Pool(args.max_parallelism) as pool:
-            results = pool.imap(
+        with (multiprocessing.Pool(args.max_parallelism) if args.max_parallelism > 1 else contextlib.nullcontext()) as pool:
+            results = (pool.imap if pool is not None else map)(
                 process_solution,
                 (
                     (level, slot, save_string)
                     for level in LEVELS
                     for slot, save_string in solutions[level.level_id].items()
                 ),
-                chunksize=1,
             )
             if args.json:
                 json_result = [
