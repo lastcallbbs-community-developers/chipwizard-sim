@@ -287,20 +287,34 @@ class CellState:
     def is_transistor(self):
         return self.ntype and self.ptype
 
-    def update_gates(self):
+    def update_gates(self) -> bool:
         if self.capacitor and self.metal:
             if not self.metal.powered:
                 self.metal.open = False
+            return self.metal.open
 
         if self.is_transistor():
             if self.n_on_top:
                 self.ptype.open = not self.ntype.powered
+                return self.ptype.open
             else:
                 self.ntype.open = self.ptype.powered
+                return self.ntype.open
 
-    def tick_capacitor(self):
+        return True
+
+    def tick_capacitor(self) -> bool:
         if self.capacitor and self.metal:
             self.metal.open = self.metal.powered
+            return self.metal.open
+
+        if self.is_transistor():
+            if self.n_on_top:
+                return self.ptype.open
+            else:
+                return self.ntype.open
+
+        return True
 
     @classmethod
     def from_cell(cls, cell: Cell) -> CellState:
@@ -595,6 +609,7 @@ class SimulationResult:
     solution: Solution
 
     states: list[State]
+    substates: Optional[list[list[State]]]
     signals: dict[Coords, SignalResult]
 
     metrics: Metrics

@@ -49,9 +49,11 @@ def flood_power(state: State):
             flood(loc, Layer.METAL_LAYER)
 
 
-def simulate_solution(level: Level, solution: Solution) -> SimulationResult:
+def simulate_solution(level: Level, solution: Solution, save_substates: bool = False) -> SimulationResult:
     state = State.from_level_and_solution(level, solution)
     states = [state.copy()]
+    if save_substates:
+        substates = [[state.copy()]]
 
     is_error = False
 
@@ -61,27 +63,37 @@ def simulate_solution(level: Level, solution: Solution) -> SimulationResult:
     }
 
     for tick in range(level.num_ticks):
-        for _, cell in state.cells.items():
-            cell.tick_capacitor()
         for loc, signal in level.signals.items():
             if signal.type == SignalType.IN:
                 state.signals[loc].input_value = signal.values[tick]
 
+        # Compute the gate state bitmask
+        gate_state = sum(cell.tick_capacitor() << (loc.x * 5 + loc.y) for loc, cell in state.cells.items())
+        seen_gate_states = [gate_state]
         flood_power(state)
+        if save_substates:
+            cur_substates = [state.copy()]
 
-        substates = [state.copy()]
         while True:
-            for _, cell in state.cells.items():
-                cell.update_gates()
-            flood_power(state)
+            next_gate_state = sum(cell.update_gates() << (loc.x * 5 + loc.y) for loc, cell in state.cells.items())
+            if next_gate_state == gate_state:
+                break
+            gate_state = next_gate_state
 
-            if state == substates[-1]:
-                break
-            elif state in substates:
+            if gate_state in seen_gate_states:
                 is_error = True
+
+            seen_gate_states.append(gate_state)
+            flood_power(state)
+            if save_substates:
+                cur_substates.append(state.copy())
+
+            if is_error:
                 break
-            substates.append(state.copy())
+
         states.append(state.copy())
+        if save_substates:
+            substates.append(cur_substates)
         for loc, signal in state.signals.items():
             signal_results[loc].values.append(signal.output_value)
 
@@ -89,7 +101,7 @@ def simulate_solution(level: Level, solution: Solution) -> SimulationResult:
             break
 
     is_correct = not is_error and all(
-        signal.values == signal.target_values for loc, signal in signal_results.items()
+        signal.values == signal.target_values for _, signal in signal_results.items()
     )
 
     num_metal = 0
@@ -164,6 +176,7 @@ def simulate_solution(level: Level, solution: Solution) -> SimulationResult:
         level=level,
         solution=solution,
         states=states,
+        substates=substates if save_substates else None,
         signals=signal_results,
         metrics=metrics,
     )
