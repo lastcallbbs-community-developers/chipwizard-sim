@@ -608,7 +608,7 @@ class SimulationResult:
     level: Level
     solution: Solution
 
-    states: list[State]
+    states: Optional[list[State]]
     substates: Optional[list[list[State]]]
     signals: dict[Coords, SignalResult]
 

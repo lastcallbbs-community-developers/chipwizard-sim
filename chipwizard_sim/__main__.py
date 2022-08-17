@@ -122,7 +122,7 @@ def main():
 
         save_string = solutions[level.level_id][slot]
         solution = parse_solution(save_string)
-        result = simulate_solution(level, solution)
+        result = simulate_solution(level, solution, save_states=True, save_substates=True)
         print(f"{level.level_name} (Slot {slot})")
         print("Metrics:")
         for field in dataclasses.fields(Metrics):
@@ -131,6 +131,7 @@ def main():
         print("Solution:")
         print(solution.visualize(level))
         print("Final state:")
+        assert result.states is not None
         print(result.states[-1].visualize())
         print()
         print("Signals:")

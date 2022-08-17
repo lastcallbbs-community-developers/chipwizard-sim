@@ -49,9 +49,10 @@ def flood_power(state: State):
             flood(loc, Layer.METAL_LAYER)
 
 
-def simulate_solution(level: Level, solution: Solution, save_substates: bool = False) -> SimulationResult:
+def simulate_solution(level: Level, solution: Solution, save_states: bool = False, save_substates: bool = False) -> SimulationResult:
     state = State.from_level_and_solution(level, solution)
-    states = [state.copy()]
+    if save_states:
+        states = [state.copy()]
     if save_substates:
         substates = [[state.copy()]]
 
@@ -91,7 +92,8 @@ def simulate_solution(level: Level, solution: Solution, save_substates: bool = F
             if is_error:
                 break
 
-        states.append(state.copy())
+        if save_states:
+            states.append(state.copy())
         if save_substates:
             substates.append(cur_substates)
         for loc, signal in state.signals.items():
@@ -175,7 +177,7 @@ def simulate_solution(level: Level, solution: Solution, save_substates: bool = F
     return SimulationResult(
         level=level,
         solution=solution,
-        states=states,
+        states=states if save_states else None,
         substates=substates if save_substates else None,
         signals=signal_results,
         metrics=metrics,
