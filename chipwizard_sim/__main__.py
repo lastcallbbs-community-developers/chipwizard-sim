@@ -123,6 +123,8 @@ def main():
         save_string = solutions[level.level_id][slot]
         solution = parse_solution(save_string)
         result = simulate_solution(level, solution, save_states=True, save_substates=True)
+        assert result.states is not None
+        assert result.substates is not None
         print(f"{level.level_name} (Slot {slot})")
         print("Metrics:")
         for field in dataclasses.fields(Metrics):
@@ -130,9 +132,17 @@ def main():
         print()
         print("Solution:")
         print(solution.visualize(level))
-        print("Final state:")
-        assert result.states is not None
-        print(result.states[-1].visualize())
+        if result.metrics.is_error:
+            print(f"Instability detected on step {len(result.states)}!")
+            print("Previous state:")
+            print(result.states[-2].visualize())
+            print("Current states:")
+            for substate in result.substates[-1]:
+                print(substate.visualize())
+            print("...")
+        else:
+            print("Final state:")
+            print(result.states[-1].visualize())
         print()
         print("Signals:")
         for _, signal in result.signals.items():
