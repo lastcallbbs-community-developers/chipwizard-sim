@@ -67,8 +67,9 @@ def main():
                         dict(
                             level_name=level.level_name,
                             level_id=level.level_id,
+                            slot_id=slot,
                             **(
-                                dict(solution=solution.save_string)
+                                dict(solution=f"Volgograd.Solution.{level.level_id}.0 = {solution.save_string}")
                                 if args.include_solution
                                 else {}
                             ),
@@ -76,7 +77,7 @@ def main():
                         )
                     )
                 else:
-                    print(f"{level.level_name} (Slot {slot})\n{result.metrics}")
+                    print(f"{level.level_name} (Level ID {level.level_id}, Slot {slot})\n{result.metrics}")
         if args.json:
             print(json.dumps(json_result))
 
