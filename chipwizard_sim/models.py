@@ -575,7 +575,9 @@ class Metrics:
     # Counts of specific cell types
     # Note that num_ntype and num_ptype both count all transistors
     num_metal: int
+    num_bare_ntype: int
     num_ntype: int
+    num_bare_ptype: int
     num_ptype: int
     num_capacitors: int
     num_vias: int

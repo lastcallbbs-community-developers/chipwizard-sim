@@ -35,7 +35,9 @@ Metrics:
 is_correct = True
 is_error = False
 num_metal = 8
+num_bare_ntype = 1
 num_ntype = 2
+num_bare_ptype = 2
 num_ptype = 3
 num_capacitors = 0
 num_vias = 3
