@@ -584,9 +584,12 @@ class Metrics:
 
     # Aggregate statistics
     num_transistors: int
-    num_silicon: int
 
-    # Total of num_silicon + num_metal + num_vias
+    # Total area (number of squares) covered with silicon
+    silicon_area: int
+    # Total volume of silicon (double counts transistors)
+    silicon_volume: int
+    # Total of silicon_volume + num_metal + num_vias
     total_volume: int
 
     silicon_width: int

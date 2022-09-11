@@ -125,7 +125,7 @@ def simulate_solution(
     num_npn_transistors = 0
     num_pnp_transistors = 0
     num_transistors = 0
-    num_silicon = 0
+    silicon_area = 0
 
     silicon_min_x, silicon_max_x = 6, -1
     silicon_min_y, silicon_max_y = 5, -1
@@ -156,13 +156,14 @@ def simulate_solution(
                 num_npn_transistors += 1
 
         if cell.ntype or cell.ptype or cell.capacitor:
-            num_silicon += 1
+            silicon_area += 1
             silicon_min_x = min(silicon_min_x, loc.x)
             silicon_max_x = max(silicon_max_x, loc.x)
             silicon_min_y = min(silicon_min_y, loc.y)
             silicon_max_y = max(silicon_max_y, loc.y)
 
-    total_volume = num_silicon + num_metal + num_vias
+    silicon_volume = num_ntype + num_ptype + num_capacitors
+    total_volume = silicon_volume + num_metal + num_vias
 
     silicon_width = max(silicon_max_x - silicon_min_x + 1, 0)
     silicon_height = max(silicon_max_y - silicon_min_y + 1, 0)
@@ -179,7 +180,8 @@ def simulate_solution(
         num_npn_transistors=num_npn_transistors,
         num_pnp_transistors=num_pnp_transistors,
         num_transistors=num_transistors,
-        num_silicon=num_silicon,
+        silicon_area=silicon_area,
+        silicon_volume=silicon_volume,
         total_volume=total_volume,
         silicon_width=silicon_width,
         silicon_height=silicon_height,
