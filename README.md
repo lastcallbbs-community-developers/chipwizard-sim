@@ -50,6 +50,7 @@ total_volume = 16
 silicon_width = 2
 silicon_height = 3
 silicon_size = 6
+footprint = 9
 
 Solution:
 ┌───────────────────────────────────────────────────────┐

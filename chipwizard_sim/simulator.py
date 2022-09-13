@@ -126,6 +126,7 @@ def simulate_solution(
     num_pnp_transistors = 0
     num_transistors = 0
     silicon_area = 0
+    footprint = 0
 
     silicon_min_x, silicon_max_x = 6, -1
     silicon_min_y, silicon_max_y = 5, -1
@@ -162,6 +163,9 @@ def simulate_solution(
             silicon_min_y = min(silicon_min_y, loc.y)
             silicon_max_y = max(silicon_max_y, loc.y)
 
+        if cell.ntype or cell.ptype or cell.capacitor or cell.metal:
+            footprint += 1
+
     silicon_volume = num_ntype + num_ptype + num_capacitors
     total_volume = silicon_volume + num_metal + num_vias
 
@@ -188,6 +192,7 @@ def simulate_solution(
         silicon_width=silicon_width,
         silicon_height=silicon_height,
         silicon_size=silicon_size,
+        footprint=footprint,
     )
     return SimulationResult(
         level=level,

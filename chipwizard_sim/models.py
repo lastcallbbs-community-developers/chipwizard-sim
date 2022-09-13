@@ -598,6 +598,8 @@ class Metrics:
     silicon_height: int
     silicon_size: int
 
+    footprint: int
+
 
 @dataclass
 class SignalResult:
