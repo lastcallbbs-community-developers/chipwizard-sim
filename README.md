@@ -33,7 +33,7 @@ BBS/7...5/save.dat
 NOT Gate (Slot 0)
 Metrics:
 is_correct = True
-is_error = False
+is_unstable = False
 num_metal = 8
 num_bare_ntype = 1
 num_ntype = 2

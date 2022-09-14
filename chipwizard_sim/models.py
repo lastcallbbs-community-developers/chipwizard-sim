@@ -570,7 +570,7 @@ class State:
 @dataclass
 class Metrics:
     is_correct: bool
-    is_error: bool
+    is_unstable: bool
 
     # Counts of specific cell types
     # Note that num_ntype and num_ptype both count all transistors

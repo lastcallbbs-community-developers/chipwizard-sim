@@ -61,7 +61,7 @@ def simulate_solution(
     if save_substates:
         substates = [[state.copy()]]
 
-    is_error = False
+    is_unstable = False
 
     signal_results = {
         loc: SignalResult(signal.name, signal.type, [], list(signal.values))
@@ -93,14 +93,14 @@ def simulate_solution(
             gate_state = next_gate_state
 
             if gate_state in seen_gate_states:
-                is_error = True
+                is_unstable = True
 
             seen_gate_states.append(gate_state)
             flood_power(state)
             if save_substates:
                 cur_substates.append(state.copy())
 
-            if is_error:
+            if is_unstable:
                 break
 
         if save_states:
@@ -110,10 +110,10 @@ def simulate_solution(
         for loc, signal in state.signals.items():
             signal_results[loc].values.append(signal.output_value)
 
-        if is_error:
+        if is_unstable:
             break
 
-    is_correct = not is_error and all(
+    is_correct = not is_unstable and all(
         signal.values == signal.target_values for _, signal in signal_results.items()
     )
 
@@ -175,7 +175,7 @@ def simulate_solution(
 
     metrics = Metrics(
         is_correct=is_correct,
-        is_error=is_error,
+        is_unstable=is_unstable,
         num_metal=num_metal,
         num_bare_ntype = num_ntype - num_transistors,
         num_ntype = num_ntype,
